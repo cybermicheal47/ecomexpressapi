@@ -7,7 +7,7 @@ const {
 const order = require("../models/Order");
 const router = require("express").Router();
 
-//CREATE Product
+//CREATE Order
 
 router.post("/", verifyWebToken, async (req, res) => {
   const newOrder = new order(req.body);
@@ -20,7 +20,7 @@ router.post("/", verifyWebToken, async (req, res) => {
   }
 });
 
-// update Cart
+// update Order
 
 router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
   try {
@@ -37,26 +37,26 @@ router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
   }
 });
 
-//DELETE Cart
+//DELETE Orders
 
 router.delete =
   ("/:id",
-  verifyTokenAndAuthorization,
+  verifyTokenAndAdmin,
   async (req, res) => {
     try {
-      await Cart.findByIdAndDelete(req.params.id);
-      res.status(200).json(" Cart  Deleted");
+      await order.findByIdAndDelete(req.params.id);
+      res.status(200).json(" Order  Deleted");
     } catch (error) {
       res.status(500).json(error);
     }
   });
 
-// GET  User Carts
+// GET  User Orders
 router.get("/find/:userId", verifyTokenAndAuthorization, async (req, res) => {
   try {
-    const cart = await Cart.findOne({ userId: req.params.userId });
-    if (!cart) {
-      return res.status(404).json({ message: "  Cart not found" });
+    const Order = await order.find({ userId: req.params.userId });
+    if (!Order) {
+      return res.status(404).json({ message: " Order not found" });
     }
 
     res.status(200).json(product);
@@ -65,13 +65,57 @@ router.get("/find/:userId", verifyTokenAndAuthorization, async (req, res) => {
   }
 });
 
-// GET ALL Carts
+// GET ALL Orders
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
   try {
-    const carts = await Cart.find();
-    res.status(200).json(carts);
+    const Order = await order.find();
+    res.status(200).json(Order);
   } catch (error) {
     res.status(500).json(error);
+  }
+});
+
+// Get Orders within the Last Two Months
+router.get("/stats", verifyTokenAndAdmin, async (req, res) => {
+  const currentDate = new Date();
+  const firstDayOfCurrentMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  );
+
+  const lastMonth = new Date(firstDayOfCurrentMonth);
+  lastMonth.setMonth(firstDayOfCurrentMonth.getMonth() - 1);
+
+  console.log("Current Month Range:", {
+    start: firstDayOfCurrentMonth.toISOString(),
+    end: currentDate.toISOString(),
+  });
+
+  console.log("Previous Month Range:", {
+    start: lastMonth.toISOString(),
+    end: firstDayOfCurrentMonth.toISOString(),
+  });
+
+  try {
+    const stats = await order.aggregate([
+      { $match: { createdAt: { $gte: lastMonth } } },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          sales: "$amount",
+        },
+      },
+      {
+        $group: {
+          _id: "$month",
+          total: { $sum: "$sales" },
+        },
+      },
+    ]);
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

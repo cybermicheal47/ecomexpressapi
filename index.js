@@ -6,6 +6,8 @@ const UserRoute = require("./routes/user");
 const AuthRoute = require("./routes/auth");
 const LoginRoute = require("./routes/login");
 const ProductsRoute = require("./routes/product");
+const CartRoute = require("./routes/cart");
+const OrderRoute = require("./routes/order");
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ app.use("/api/user", UserRoute);
 app.use("/api/auth", AuthRoute);
 app.use("/api/auth", LoginRoute);
 app.use("/api/products", ProductsRoute);
+app.use("/api/carts", CartRoute);
+app.use("/api/orders", OrderRoute);
 app.listen(process.env.PORT || 3500, () => {
   console.log("baqckend");
 });
