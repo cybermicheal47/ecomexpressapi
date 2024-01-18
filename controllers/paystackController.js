@@ -6,12 +6,15 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
 const pay = function (req, res) {
-  const { email, amount } = req.query;
+  const { email, amount, billing_address } = req.query;
 
-  if (!email || !amount) {
+  if (!email || !amount || !billing_address) {
     return res
       .status(400)
-      .json({ error: "Email and amount are required as query parameters" });
+      .json({
+        error:
+          "Email, amount, and billing_address are required in the request body",
+      });
   }
 
   // Convert amount to kobo
@@ -20,6 +23,7 @@ const pay = function (req, res) {
   const params = JSON.stringify({
     email,
     amount: amountInKobo, // Use the converted amount
+    billing_address,
   });
 
   const options = {
