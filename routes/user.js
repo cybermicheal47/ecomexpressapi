@@ -2,7 +2,7 @@ const {
   verifyWebToken,
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
-} = require("./verifyWebToken");
+} = require("../middleware/verifyWebToken");
 
 const User = require("../models/User");
 const router = require("express").Router();

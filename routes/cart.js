@@ -2,7 +2,7 @@ const {
   verifyWebToken,
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
-} = require("./verifyWebToken");
+} = require("../middleware/verifyWebToken");
 
 const Cart = require("../models/Cart");
 const router = require("express").Router();
